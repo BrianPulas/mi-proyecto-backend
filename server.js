@@ -16,7 +16,7 @@ const PORT = 3000; // Puedes cambiar el puerto si es necesario
 // Usar una sola declaración y una sola conexión para evitar conflictos
 
 // Reemplaza <USERNAME>, <PASSWORD> y <DBNAME> con tus credenciales de MongoDB Atlas
-const MONGODB_URL = 'mongodb+srv://jacobogarcesoquendo:aFJzVMGN3o7fA38A@cluster0.mqwbn.mongodb.net/brandonnahuelgonzalezalvez';
+const MONGODB_URL = 'mongodb+srv://jacobogarcesoquendo:aFJzVMGN3o7fA38A@cluster0.mqwbn.mongodb.net/BrandonGonzalezBrianPulas';
 
 mongoose.connect(MONGODB_URL, {
     useNewUrlParser: true,
