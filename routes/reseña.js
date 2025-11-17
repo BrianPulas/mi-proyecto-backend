@@ -7,6 +7,13 @@ router.post('/', async (req, res) => {
     try {
         const nuevaReseña = new Reseña(req.body);
         await nuevaReseña.save();
+        const reseñaJuego = await Juego.findById(req.body.juegoId);
+        
+        const activity = new Activity({ 
+            text: `Alguien dejó una reseña de ${newReseña.puntuacion} estrellas para ${reseñaJuego.titulo}`, 
+            gameId: reseñaJuego._id 
+        });
+        await activity.save();
         res.status(201).json(nuevaReseña);
     } catch (error) {
         res.status(400).json({ message: 'Error al crear reseña', error: error.message });

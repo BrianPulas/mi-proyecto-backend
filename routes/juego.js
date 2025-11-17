@@ -8,6 +8,11 @@ router.post('/', async (req, res) => {
     try {
         const nuevoJuego = new Juego(req.body);
         await nuevoJuego.save();
+        const activity = new Activity({ 
+            text: `¡Se añadió ${newJuego.titulo} a la biblioteca!`, 
+            gameId: newJuego._id 
+        });
+        await activity.save();
         res.status(201).json(nuevoJuego);
     } catch (error) {
         res.status(400).json({ message: 'Error al agregar juego', error: error.message });

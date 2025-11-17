@@ -10,12 +10,17 @@ const juegosRouter = require('./routes/juego');
 const resenasRouter = require('./routes/reseña');
 const axios = require('axios');
 
+// --- ¡NUEVO! Importa el nuevo modelo ---
+const Activity = require('./models/Activity'); // Asumiendo que lo pusiste en /models/Activity.js
+
 require('dotenv').config();
 
 const app = express();
 // Si usas variables de entorno, asegúrate de declararlas después de config()
 const PORT = process.env.PORT || 3000;
 // Ejemplo: const MONGO_URI = process.env.MONGO_URI;
+
+// ¡RECUERDA ARREGLAR ESTA LÍNEA CON UNA DB QUE EXISTA!
 const MONGODB_URL = 'mongodb+srv://jacobogarcesoquendo:aFJzVMGN3o7fA38A@cluster0.mqwbn.mongodb.net/BrandonGonzalez';
 
 mongoose.connect(MONGODB_URL, {
@@ -24,6 +29,7 @@ mongoose.connect(MONGODB_URL, {
 })
 .then(() => console.log('✅ Conexión a MongoDB Atlas exitosa.'))
 .catch(err => console.error('❌ Error de conexión a MongoDB:', err.message));
+
 // --- (¡NUEVO!) RUTA PARA BUSCAR JUEGOS EN RAWG ---
 // Ruta: /api/search-game/:title (mejora robustez y validación)
 app.get('/api/search-game/:title', async (req, res) => {
@@ -54,6 +60,22 @@ app.get('/api/search-game/:title', async (req, res) => {
     res.status(502).json({ message: "Error al contactar la API externa." });
   }
 });
+
+// --- ¡NUEVO! RUTA PARA EL FEED DE ACTIVIDAD ---
+app.get('/api/feed', async (req, res) => {
+    try {
+        // Busca las 20 actividades más recientes y las ordena
+        const activities = await Activity.find()
+            .sort({ timestamp: -1 }) // -1 = descendente (la más nueva primero)
+            .limit(20)
+            .populate('gameId', 'titulo'); // Trae el 'titulo' del juego (asumiendo que el campo se llama 'titulo')
+            
+        res.json(activities);
+    } catch (err) {
+        res.status(500).json({ message: "Error al cargar el feed", error: err.message });
+    }
+});
+
 
 // Middleware
 app.use(cors()); // Permite solicitudes desde el frontend React
