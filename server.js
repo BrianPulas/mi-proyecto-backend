@@ -21,7 +21,7 @@ const PORT = process.env.PORT || 3000;
 // Ejemplo: const MONGO_URI = process.env.MONGO_URI;
 
 // ¡RECUERDA ARREGLAR ESTA LÍNEA CON UNA DB QUE EXISTA!
-const MONGODB_URL = 'mongodb+srv://jacobogarcesoquendo:aFJzVMGN3o7fA38A@cluster0.mqwbn.mongodb.net/BrandonGonzalez';
+const MONGODB_URL = 'mongodb+srv://jacobogarcesoquendo:aFJzVMGN3o7fA38A@cluster0.mqwbn.mongodb.net/brandonnahuelgonzalezalvez';
 
 mongoose.connect(MONGODB_URL, {
     useNewUrlParser: true,
