@@ -18,7 +18,7 @@ const Activity = require('./models/Activity'); // Asumiendo que lo pusiste en /m
 
 require('dotenv').config();
 const Juego = require('./models/juego');
-const Reseña = require('./models/reseña');
+const Reseña = require('./models/Reseña');
 
 const app = express();
 // Si usas variables de entorno, asegúrate de declararlas después de config()
@@ -82,49 +82,56 @@ app.get('/api/feed', async (req, res) => {
 });
 app.get('/api/stats/dashboard', async (req, res) => {
     try {
-        // 1. Estadísticas básicas (Total y Completados)
-        // Usamos $group para agrupar todos los juegos en uno solo
-        const basicStats = await Juego.aggregate([
+        // 1. Agregación principal de Juegos
+        const gameStats = await Juego.aggregate([
             {
                 $group: {
                     _id: null, // Agrupamos todo en un solo documento
                     totalJuegos: { $sum: 1 },
                     completados: { 
-                        $sum: { $cond: ["$completado", 1, 0] } // Suma 1 si "completado" es true
-                    }
+                        $sum: { $cond: ["$completado", 1, 0] } 
+                    },
+                    // --- ¡NUEVO! ---
+                    totalHoras: { $sum: "$totalHorasJugadas" },
+                    totalLogrosObtenidos: { $sum: "$logrosObtenidos" },
+                    totalLogrosPosibles: { $sum: "$logrosTotales" }
                 }
             }
         ]);
 
-        // 2. Conteo de juegos por Plataforma (para el gráfico de Pie)
+        // 2. Conteo de juegos por Plataforma
         const plataformaStats = await Juego.aggregate([
             { $group: { _id: "$plataforma", count: { $sum: 1 } } },
-            { $sort: { count: -1 } } // Opcional: ordena del más jugado al menos
+            { $sort: { count: -1 } }
         ]);
 
-        // 3. Conteo de juegos por Género (para el gráfico de Pie)
+        // 3. Conteo de juegos por Género
         const generoStats = await Juego.aggregate([
             { $group: { _id: "$genero", count: { $sum: 1 } } },
             { $sort: { count: -1 } }
         ]);
 
-        // 4. Puntuación Media de todas las Reseñas
-        const reseñaStats = await Reseña.aggregate([
+        // 4. Puntuación Media (¡Ahora la leemos desde los juegos!)
+        const reseñaStats = await Juego.aggregate([
             {
                 $group: {
                     _id: null,
-                    mediaPuntuacion: { $avg: "$puntuacion" }
+                    mediaPuntuacion: { $avg: "$puntuacionMedia" }
                 }
             }
         ]);
 
         // 5. Prepara el objeto de respuesta
         const stats = {
-            totalJuegos: basicStats[0]?.totalJuegos || 0,
-            completados: basicStats[0]?.completados || 0,
-            plataformas: plataformaStats, // Ej: [{ _id: "PC", count: 5 }, { _id: "PS5", count: 2 }]
+            totalJuegos: gameStats[0]?.totalJuegos || 0,
+            completados: gameStats[0]?.completados || 0,
+            plataformas: plataformaStats,
             generos: generoStats,
-            mediaPuntuacion: reseñaStats[0]?.mediaPuntuacion || 0
+            mediaPuntuacion: reseñaStats[0]?.mediaPuntuacion || 0,
+            // --- ¡NUEVO! ---
+            totalHoras: gameStats[0]?.totalHoras || 0,
+            totalLogrosObtenidos: gameStats[0]?.totalLogrosObtenidos || 0,
+            totalLogrosPosibles: gameStats[0]?.totalLogrosPosibles || 0,
         };
 
         res.json(stats);

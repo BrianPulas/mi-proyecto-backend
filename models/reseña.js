@@ -18,6 +18,4 @@ ReseñaSchema.pre('save', function (next) {
     next();
 });
 
-const Reseña = mongoose.model('Reseña', ReseñaSchema);
-
-module.exports = Reseña;
+module.exports = mongoose.models.Reseña || mongoose.model('Reseña', ReseñaSchema);

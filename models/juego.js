@@ -1,18 +1,38 @@
-const mongoose = require('mongoose');
+// backend/models/Juego.js
 
-// Esquema de Videojuegos (Games)
-const JuegoSchema = new mongoose.Schema({
-    titulo: { type: String, required: true, trim: true },
+const mongoose = require('mongoose');
+const Schema = mongoose.Schema;
+
+// (Asumo que tu esquema de Juego se ve así)
+const juegoSchema = new Schema({
+    titulo: { type: String, required: true },
     genero: { type: String, required: true },
     plataforma: { type: String, required: true },
-    añoLanzamiento: { type: Number, required: true },
-    desarrollador: { type: String, required: true },
-    imagenPortada: { type: String, default: 'https://placehold.co/600x400/1e293b/cbd5e1?text=PLUS+ULTRA+GAME' }, // Placeholder por defecto
-    descripcion: { type: String, default: '' },
+    añoLanzamiento: { type: Number },
+    desarrollador: { type: String },
+    imagenPortada: { type: String },
+    descripcion: { type: String },
     completado: { type: Boolean, default: false },
-    fechaCreacion: { type: Date, default: Date.now }
-});
+    
+    // --- ¡NUEVOS CAMPOS ESTILO STEAM! ---
+    totalHorasJugadas: {
+        type: Number,
+        default: 0
+    },
+    puntuacionMedia: {
+        type: Number,
+        default: 0
+    },
+    logrosObtenidos: {
+        type: Number,
+        default: 0
+    },
+    logrosTotales: {
+        type: Number,
+        default: 0
+    }
+    // --- Fin de los campos nuevos ---
 
-const Juego = mongoose.model('Juego', JuegoSchema);
+}, { timestamps: true });
 
-module.exports = Juego;
+module.exports = mongoose.model('Juego', juegoSchema);
